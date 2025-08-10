@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小学数学题题目AI生成器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            display: inline-block;
+            margin-right: 20px;
+        }
+        h2 {
+            display: inline-block;
+            color: #666;
+            font-weight: normal;
+            margin-bottom: 30px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        .controls > div {
+            margin: 15px 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+        .controls label {
+            display: inline-block;
+            min-width: 100px;
+            color: #2c3e50;
+        }
+        select, input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+            max-width: 200px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background-color 0.3s;
+            flex: 1;
+            min-width: 120px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .problems {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+        }
+        .problem {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px dashed #ddd;
+        }
+        .problem-number {
+            color: white;
+            font-size: 0.9em;
+            background: #3498db;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .problem-content {
+            font-size: 1.2em;
+            color: #2c3e50;
+        }
+        .answer {
+            color: #27ae60;
+            font-weight: bold;
+            display: none;
+        }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .toggle-answers {
+            background-color: #2ecc71;
+        }
+        .toggle-answers:hover {
+            background-color: #27ae60;
+        }
+        button[onclick="window.print()"] {
+            background-color: #e74c3c;
+        }
+        button[onclick="window.print()"]:hover {
+            background-color: #c0392b;
+        }
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+            }
+            
+            .controls {
+                padding: 15px;
+            }
+            
+            .problem-content {
+                font-size: 1em;
+            }
+            
+            .problems {
+                padding: 15px;
+                gap: 10px;
+            }
+        }
+        @media screen and (max-width: 480px) {
+            .controls label {
+                width: 100%;
+            }
+            
+            select, input {
+                max-width: 100%;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+        @media print {
+            .controls, .toggle-answers {
+                display: none;
+            }
+            body {
+                background: white;
+            }
+            .problems {
+                box-shadow: none;
+            }
+            h2 {
+                display: none;
+            }
+            .problem {
+                break-inside: avoid;
+                border-bottom: 1px dashed #ccc;
+                padding: 8px 0;
+            }
+            .problem-number {
+                border: 1px solid #666;
+                color: #000;
+                background: none;
+            }
+            @page {
+                margin: 1cm;
+            }
+        }
+    </style>
+    <script src="script.js"></script>
+</head>
+<body>
+    <div class="header">
+        <h1>小学数学题</h1>
+        <h2>题目AI生成器</h2>
+    </div>
+    <div class="controls">
+        <div>
+            <label>运算类型：</label>
+            <select id="operationType">
+                <option value="add">加法</option>
+                <option value="subtract">减法</option>
+                <option value="mixed">加减混合</option>
+                <option value="multiply">乘法</option>
+                <option value="divide">除法</option>
+            </select>
+        </div>
+        <div>
+            <label>难度：</label>
+            <select id="difficulty">
+                <option value="easy">简单 (1-10)</option>
+                <option value="medium">中等 (1-20)</option>
+                <option value="hard">挑战 (1-100)</option>
+            </select>
+        </div>
+        <div>
+            <label>题目数量：</label>
+            <input type="number" id="problemCount" min="1" value="10">
+        </div>
+        <div class="button-group">
+            <button onclick="generateProblems()">生成题目</button>
+            <button class="toggle-answers" onclick="toggleAnswers()">显示/隐藏答案</button>
+            <button onclick="window.print()">打印题目</button>
+        </div>
+    </div>
+    <div id="problemList" class="problems"></div>
+</body>
+</html> 
